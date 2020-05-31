@@ -1,0 +1,117 @@
+@font-face {
+    font-family: 'Garamond-Regular';
+    src: url(/assets/Garamond-Regular.ttf) format("truetype");
+    font-weight:300;
+}
+
+.bg {
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    /* The image used */
+    background-image: url("assets/bg.jpg");
+    /* Full height */
+    height: 100%;
+    /* Center and scale the image nicely */
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.fullpage {
+    position:fixed;
+    left: 0; right:0; top:0;
+    height:100%;
+    overflow: auto;
+}
+
+.fullsvg {
+    position:fixed; 
+    top:0; 
+    left:0; 
+    height:100%; 
+    width:100%;
+}
+
+.spotlight {
+    position: fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    div {
+        position: fixed;
+        text-align: center;
+    }
+}
+
+.panel-menu-list {
+    position: fixed;
+    display: flex;
+}
+
+.top-left-menu {
+    top: 10px;
+    left: 15px;
+}
+
+.top-right-menu {
+    top: 10px;
+    right: 15px;
+}
+
+.bottom-left-menu {
+    bottom: 10px;
+    left: 15px;
+}
+
+@media screen and (orientation:portrait) {
+    .panel-menu-list.top-right-menu {
+       flex-direction: row-reverse;
+    }
+    .panel-menu-item {
+       height: 40px;
+       padding-right: 10px;
+    }
+    .fullpage {
+        padding-top: 70px;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+    .splash-title {
+        div {
+            padding-top: 70px;
+        }
+    }
+    .footer {
+        height: 100px;
+    }
+}
+
+@media screen and (orientation:landscape) {
+    .panel-menu-list {
+       flex-direction: column;
+    }
+    .panel-menu-item {
+       width: 40px;
+       padding-bottom: 10px;
+    }
+    .fullpage {
+        padding-top: 10px;
+        padding-right: 70px;
+        padding-left: 70px;
+        padding-bottom: 10px;
+    }
+    .splash-title {
+        div {
+            padding-left: 70px;
+            padding-right: 70px;
+        }
+    }
+}
