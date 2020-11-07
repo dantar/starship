@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  endpoint: 'http://ada-devel.hyperborea.com/rest/starship',
+  endpoint: 'https://www.dantar.it/rest/starship',
 };

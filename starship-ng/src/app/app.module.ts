@@ -7,11 +7,13 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { SpaceportComponent } from './components/spaceport/spaceport.component';
+import { PeerToPeerComponent } from './components/peer-to-peer/peer-to-peer.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SpaceportComponent
+    SpaceportComponent,
+    PeerToPeerComponent
   ],
   imports: [
     BrowserModule,
