@@ -17,9 +17,14 @@ export class PeerToPeerComponent implements OnInit {
   localrtc: RTCSessionDescriptionInit;
   remotertc: RTCSessionDescriptionInit;
 
+  peerAvailable: boolean;
+  messageForPeer: string;
+
   constructor() { }
 
   ngOnInit(): void {
+    this.peerAvailable = false;
+    this.messageForPeer = '';
     // ice candidates
     this.iceCandidates = [];
     // peer connection
@@ -42,6 +47,7 @@ export class PeerToPeerComponent implements OnInit {
     this.localDataChannel.onopen = () => {
       console.log(`dataChannel '${this.localDataChannel.label}' opened, sending message`);
       //this.localDataChannel.send('message from answerer');
+      this.peerAvailable = true;
     };
     this.localDataChannel.onmessage = e => {
       console.log('received:', e.data);
@@ -52,6 +58,11 @@ export class PeerToPeerComponent implements OnInit {
     this.localDataChannel.onclose = () => {
       console.log('dataChannel closed');
     };
+  }
+
+  clickSendMessageToPeer() {
+    this.localDataChannel.send(this.messageForPeer);
+    this.messageForPeer = '';
   }
 
   async setupOffer() {
@@ -70,15 +81,6 @@ export class PeerToPeerComponent implements OnInit {
 
     this.localrtc = await this.peerConnection.createOffer();
     await this.peerConnection.setLocalDescription(this.localrtc);
-
-    const pasteInput = document.getElementById('paste');
-
-    // pasteInput.onpaste = async (e) => {
-    //   console.log('paste!', e);
-    //   const { answer, iceCandidates } = JSON.parse(e.clipboardData.getData('text/plain'));
-    //   await this.peerConnection.setRemoteDescription(answer);
-    //   iceCandidates.forEach(c => this.peerConnection.addIceCandidate(c));
-    // };
 
   }
 
@@ -116,10 +118,6 @@ export class PeerToPeerComponent implements OnInit {
       console.log("peerConnection.createAnswer done");
       this.localtoken = JSON.stringify({ rtc: this.localrtc, iceCandidates: iceCandidates });
     }
-    // copyButton.onclick = () => {
-    //   navigator.clipboard.writeText(JSON.stringify({ this.answer, iceCandidates }));
-    //   console.log('Copied answer/candidates. Paste in Offerer example.');
-    // };
     iceCandidates.forEach(c => this.peerConnection.addIceCandidate(c));
   };
 

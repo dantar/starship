@@ -1,5 +1,5 @@
 <div class="spaceport">
-    <div><input [(ngModel)]="remotetoken" type="text" id="paste" name="paste" /></div>
+    <div><input [(ngModel)]="remotetoken" type="text" /></div>
     <div *ngIf="remotetoken">{{remotetoken}}</div>
     <div (click)="clickAcceptToken()">accetta token</div>
 </div>
@@ -7,4 +7,9 @@
 <div class="spaceport">
     <div (click)="clickSetupOffer()">Make an offer</div>
     <div (click)="clickCopyToken()">copia token</div>
+</div>
+
+<div *ngIf="peerAvailable" class="spaceport">
+    <div><input [(ngModel)]="messageForPeer" type="text" /></div>
+    <div (click)="clickSendMessageToPeer()">Invia messaggio</div>
 </div>
