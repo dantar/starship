@@ -8,9 +8,9 @@ import { Component, OnInit } from '@angular/core';
 export class PeerToPeerComponent implements OnInit {
 
   peerConnection: RTCPeerConnection;
+  iceCandidates: RTCIceCandidate[];
+  
   localDataChannel: RTCDataChannel;
-  iceCandidates: any[];
-
   localtoken: string;
   remotetoken: string;
 
@@ -29,7 +29,7 @@ export class PeerToPeerComponent implements OnInit {
     this.iceCandidates = [];
     // peer connection
     this.peerConnection = new RTCPeerConnection({ iceServers: [ { urls: 'stun:stun.l.google.com:19302' } ] });
-    this.peerConnection.onicecandidate = e => {
+    this.peerConnection.onicecandidate = (e:RTCPeerConnectionIceEvent) => {
       console.log('peerConnection.onicecandidate', e);
       if (e.candidate) {
         this.iceCandidates.push(e.candidate);
@@ -66,22 +66,17 @@ export class PeerToPeerComponent implements OnInit {
   }
 
   async setupOffer() {
-    // const copyButton = document.getElementById('copy');
     this.localDataChannel = this.peerConnection.createDataChannel('mydatachannel');
     this.setUpDataChannel();
-    const component = this;
     this.peerConnection.onicegatheringstatechange = () => {
       console.log(this.peerConnection.iceGatheringState);
       if (this.peerConnection.iceGatheringState === 'complete') {
-        const offertoken = JSON.stringify({ rtc: this.localrtc, iceCandidates: component.iceCandidates });
-        console.log('Offer ready, copy.', offertoken);
-        component.offerReady(offertoken);
+        const offertoken = JSON.stringify({ rtc: this.localrtc, iceCandidates: this.iceCandidates });
+        this.offerReady(offertoken);
       }
     };
-
     this.localrtc = await this.peerConnection.createOffer();
     await this.peerConnection.setLocalDescription(this.localrtc);
-
   }
 
   clickSetupOffer() {
