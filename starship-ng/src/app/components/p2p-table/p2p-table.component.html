@@ -1,0 +1,29 @@
+<div class="spaceport">
+    <div *ngFor="let peer of starport.allPeers" class="peer">
+        <div>
+            Local code: 
+            <span *ngIf="peer.localcode">{{peer.localcode}} <span class="button" (click)="clickCopyClipboard(peer.localcode)">copy</span></span>
+            <span *ngIf="!peer.localcode">
+                <span class="button" (click)="clickCallPeer(peer)">Genera</span>
+            </span>
+        </div>
+        <div>
+            Remote code: 
+            <span *ngIf="peer.rtc.remotetoken">{{peer.remotecode}}</span>
+            <span *ngIf="!peer.rtc.remotetoken">
+                <input type="number" [(ngModel)]="peer.remotecode" (keyup.enter)="clickAnswerPeer(peer)" />
+                <span class="button" (click)="clickAnswerPeer(peer)">ok!</span>
+            </span>
+        </div>
+        <div *ngIf="peer.rtc.connected">
+            <div>Connesso!</div>
+            <div>
+                <div><input #peertext type="text" (keyup.enter)="clickSendText(peer, peertext)" /><span class="button" (click)="clickSendText(peer, peertext)">send</span></div>
+                <div *ngFor="let message of messages">{{message}}</div>
+            </div>
+        </div>
+    </div>
+    <div>
+        <span class="button" (click)="clickAddPeer()">Invita un giocatore</span>
+    </div>
+</div>

@@ -33,7 +33,8 @@ public class SpaceportController {
 		String code = "";
 		Random random = new Random();
 		while (code.length() < 6) {
-			code = code + random.nextInt(10);
+			if (code.length() == 0) code = code + (random.nextInt(9)+1);
+			else code = code + random.nextInt(10);
 		}
 		return code;
 	}
