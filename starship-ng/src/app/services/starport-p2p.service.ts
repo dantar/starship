@@ -23,13 +23,16 @@ export class StarportP2pService {
 
   async callPeer(peer: PeerPlayer, complete: () => void): Promise<PeerPlayer> {
     peer.complete = complete;
+    peer.rtc.status = 'connecting';
     await peer.rtc.offerToken(() => {
-      console.log('RTC!', peer.rtc)
+      console.log('got rtc', peer.rtc.localtoken);
+      peer.rtc.status = 'coding token';
       this.http.post<string>(
         environment.endpoint + '/token', 
         `token=${peer.rtc.localtoken}`, 
         {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
       ).toPromise().then(r => {
+        peer.rtc.status = 'got local token';
         peer.localcode = r;
         peer.complete();
       });
@@ -81,7 +84,7 @@ export class RtcPeer {
   peerConnection: RTCPeerConnection;
   iceCandidates: RTCIceCandidate[];
   dataChannel: RTCDataChannel;
-  connected: boolean;
+  status: string;
   connectedCallback: ()=>void;
 
   localrtc: RTCSessionDescriptionInit;
@@ -95,6 +98,7 @@ export class RtcPeer {
     this.peerConnection = new RTCPeerConnection({ iceServers: [ { urls: 'stun:stun.l.google.com:19302' } ] });
     this.peerConnection.onicecandidate = (e:RTCPeerConnectionIceEvent) => {
       console.log('peerConnection.onicecandidate', e);
+      console.log('peerConnection.canTrickleIceCandidates', this.peerConnection.canTrickleIceCandidates);
       if (e.candidate) {
         this.iceCandidates.push(e.candidate);
       }
@@ -109,7 +113,7 @@ export class RtcPeer {
     this.dataChannel.onopen = () => {
       console.log('open');
       //this.localDataChannel.send('message from answerer');
-      this.connected = true;
+      this.status = 'connected';
       this.connectedCallback();
     };
     this.dataChannel.onmessage = e => {

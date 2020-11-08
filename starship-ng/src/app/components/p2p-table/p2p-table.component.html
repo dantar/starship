@@ -3,9 +3,10 @@
         <div>
             Local code: 
             <span *ngIf="peer.localcode">{{peer.localcode}} <span class="button" (click)="clickCopyClipboard(peer.localcode)">copy</span></span>
-            <span *ngIf="!peer.localcode">
+            <span *ngIf="!peer.localcode && (!peer.rtc.status)">
                 <span class="button" (click)="clickCallPeer(peer)">Genera</span>
             </span>
+            <span *ngIf="peer.rtc && peer.rtc.status">{{peer.rtc.status}}</span>
         </div>
         <div>
             Remote code: 
@@ -15,7 +16,7 @@
                 <span class="button" (click)="clickAnswerPeer(peer)">ok!</span>
             </span>
         </div>
-        <div *ngIf="peer.rtc.connected">
+        <div *ngIf="peer.rtc.status === 'connected'">
             <div>Connesso!</div>
             <div>
                 <div><input #peertext type="text" (keyup.enter)="clickSendText(peer, peertext)" /><span class="button" (click)="clickSendText(peer, peertext)">send</span></div>
