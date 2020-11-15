@@ -1,4 +1,5 @@
 import { HttpClient } from '@angular/common/http';
+import { Token } from '@angular/compiler/src/ml_parser/lexer';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
@@ -29,8 +30,7 @@ export class StarportP2pService {
       peer.rtc.status = 'coding token';
       this.http.post<string>(
         environment.endpoint + '/token', 
-        `token=${peer.rtc.localtoken}`, 
-        {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
+        peer.rtc.localtoken
       ).toPromise().then(r => {
         peer.rtc.status = 'got local token';
         peer.localcode = r;
@@ -42,14 +42,12 @@ export class StarportP2pService {
 
   async confirmPeer(peer: PeerPlayer): Promise<void> {
     const needsToken = peer.rtc.localtoken ? false: true;
-    let rrr = await this.http.get<string>(`${environment.endpoint}/token/${peer.remotecode}`).toPromise();
-    peer.rtc.remotetoken = JSON.stringify(rrr);
+    peer.rtc.remotetoken = await this.http.get<TokenDto>(`${environment.endpoint}/token/${peer.remotecode}`).toPromise();
     await peer.rtc.acceptToken();
     if (needsToken && peer.rtc.localtoken) {
       peer.localcode = await this.http.post<string>(
         environment.endpoint + '/token', 
-        `token=${peer.rtc.localtoken}`, 
-        {headers: {'Content-Type': 'application/x-www-form-urlencoded'}}
+        peer.rtc.localtoken
       ).toPromise();      
     }
   }
@@ -89,8 +87,8 @@ export class RtcPeer {
 
   localrtc: RTCSessionDescriptionInit;
   remotertc: RTCSessionDescriptionInit;
-  localtoken: string;
-  remotetoken: string;
+  localtoken: TokenDto;
+  remotetoken: TokenDto;
 
   constructor(connected: ()=>void) { 
     this.connectedCallback = connected;
@@ -98,7 +96,6 @@ export class RtcPeer {
     this.peerConnection = new RTCPeerConnection({ iceServers: [ { urls: 'stun:stun.l.google.com:19302' } ] });
     this.peerConnection.onicecandidate = (e:RTCPeerConnectionIceEvent) => {
       console.log('peerConnection.onicecandidate', e);
-      console.log('peerConnection.canTrickleIceCandidates', this.peerConnection.canTrickleIceCandidates);
       if (e.candidate) {
         this.iceCandidates.push(e.candidate);
       }
@@ -133,7 +130,7 @@ export class RtcPeer {
     this.peerConnection.onicegatheringstatechange = () => {
       console.log(this.peerConnection.iceGatheringState);
       if (this.peerConnection.iceGatheringState === 'complete') {
-        this.localtoken = JSON.stringify({ rtc: this.localrtc, iceCandidates: this.iceCandidates });
+        this.localtoken = TokenDto.pack({ rtc: this.localrtc, iceCandidates: this.iceCandidates });
         complete();
       }
     };
@@ -142,14 +139,14 @@ export class RtcPeer {
   }
 
   async acceptToken() {
-    console.log('remotetoken', this.remotetoken);
-    const { rtc, iceCandidates } = JSON.parse(this.remotetoken);
+    const { rtc, iceCandidates } = TokenDto.unpack(this.remotetoken);
     this.remotertc = rtc;
+    console.log('remotetoken unpacked', this.remotertc, iceCandidates);
     await this.peerConnection.setRemoteDescription(this.remotertc);
     if (!this.localrtc) {
       this.localrtc = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(this.localrtc);
-      this.localtoken = JSON.stringify({ rtc: this.localrtc, iceCandidates: iceCandidates });
+      this.localtoken = TokenDto.pack({ rtc: this.localrtc, iceCandidates: iceCandidates });
       console.log('localtoken', this.localtoken);
     }
     iceCandidates.forEach(c => this.peerConnection.addIceCandidate(c));
@@ -157,6 +154,22 @@ export class RtcPeer {
 
   send(message: string) {
     this.dataChannel.send(message);
+  }
+
+}
+
+class TokenDto {
+
+  token: string;
+
+  static pack(item: any): TokenDto {
+    const dto = new TokenDto();
+    dto.token = btoa(JSON.stringify(item));
+    return dto;
+  }
+
+  static unpack(dto: TokenDto): any {
+    return JSON.parse(atob(dto.token));
   }
 
 }

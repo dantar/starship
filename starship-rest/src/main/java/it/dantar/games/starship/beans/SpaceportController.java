@@ -8,8 +8,10 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import it.dantar.games.starship.models.TokenDto;
 
 @RestController
 @CrossOrigin
@@ -18,14 +20,14 @@ public class SpaceportController {
 	Map<String, String> ids = new HashMap<String, String>();
 	
 	@GetMapping("/token/{code}")
-	public String token(@PathVariable String code) {
-		return this.ids.get(code);
+	public TokenDto token(@PathVariable String code) {
+		return new TokenDto().setToken(this.ids.get(code));
 	}
 	
 	@PostMapping("/token")
-	public String offer(@RequestParam String token) {
+	public String offer(@RequestBody TokenDto token) {
 		String code = randomCode();
-		this.ids.put(code, token);
+		this.ids.put(code, token.getToken());
 		return code;
 	}
 	

@@ -29,14 +29,32 @@ export class P2pTableComponent implements OnInit {
     });;
   }
 
-  async clickCallPeer(peer) {
+  clickCallPeer(peer) {
+    this.callPeer(peer).catch(
+      (error) => console.log('callPeer Error', error)
+    );
+    console.log('callPeer...', peer);
+  }
+
+  async callPeer(peer) {
     await this.starport.callPeer(peer, () => {
+      console.log('peer complete!', peer);
       this.changes.detectChanges();
     });
     this.changes.detectChanges();
   }
 
-  async clickAnswerPeer(peer) {
+  clickAnswerPeer(peer) {
+    this.answerPeer(peer)
+    .catch(
+      (error) => {
+        console.log('answerPeer Error', error);
+        throw error;
+      }
+    );
+  }
+
+  async answerPeer(peer) {
     await this.starport.confirmPeer(peer);
     this.changes.detectChanges();
   }
